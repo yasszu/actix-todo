@@ -195,6 +195,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "actix-todo"
+version = "0.1.0"
+dependencies = [
+ "actix-rt",
+ "actix-web",
+ "config",
+ "dotenv",
+ "serde 1.0.114",
+]
+
+[[package]]
 name = "actix-utils"
 version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1429,17 +1440,6 @@ name = "tinyvec"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "53953d2d3a5ad81d9f844a32f14ebb121f50b650cd59d0ee2a07cf13c617efed"
-
-[[package]]
-name = "todo-actix"
-version = "0.1.0"
-dependencies = [
- "actix-rt",
- "actix-web",
- "config",
- "dotenv",
- "serde 1.0.114",
-]
 
 [[package]]
 name = "tokio"
