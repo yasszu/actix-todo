@@ -1,11 +1,6 @@
 use serde::Serialize;
 use diesel::Queryable;
 
-#[derive(Serialize)]
-pub struct Status {
-    pub status: String
-}
-
 #[derive(Serialize, Queryable)]
 pub struct List {
     pub id: i64,
