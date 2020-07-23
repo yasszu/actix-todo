@@ -6,16 +6,16 @@ pub struct Status {
     pub status: String
 }
 
-#[derive(Queryable)]
+#[derive(Serialize, Queryable)]
 pub struct List {
-    pub id: i32,
+    pub id: i64,
     pub title: String,
 }
 
-#[derive(Queryable)]
+#[derive(Serialize, Queryable)]
 pub struct Item {
-    pub id: i32,
+    pub id: i64,
     pub title: String,
-    pub checked: bool,
-    pub list_id: i32,
+    pub checked: i8,
+    pub list_id: i64,
 }

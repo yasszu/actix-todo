@@ -4,12 +4,13 @@ use config::ConfigError;
 #[derive(Deserialize)]
 pub struct ServerConfig {
     pub host: String,
-    pub port: i32
+    pub port: i32,
 }
 
 #[derive(Deserialize)]
 pub struct Config {
-    pub server: ServerConfig
+    pub database_url: String,
+    pub server: ServerConfig,
 }
 
 impl Config {

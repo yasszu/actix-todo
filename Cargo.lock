@@ -203,6 +203,7 @@ dependencies = [
  "config",
  "diesel",
  "dotenv",
+ "futures",
  "r2d2",
  "serde 1.0.114",
 ]
@@ -498,6 +499,7 @@ dependencies = [
  "byteorder",
  "diesel_derives",
  "mysqlclient-sys",
+ "r2d2",
  "url 1.7.2",
 ]
 
