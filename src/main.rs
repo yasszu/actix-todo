@@ -1,4 +1,4 @@
-use actix_web::{web, App, HttpServer, Responder, get, Error, HttpResponse};
+use actix_web::{web, App, HttpServer, Responder, Error, HttpResponse};
 use dotenv::dotenv;
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
@@ -11,12 +11,10 @@ mod actions;
 
 type DbPool = r2d2::Pool<ConnectionManager<MysqlConnection>>;
 
-#[get("/")]
 async fn index() -> impl Responder {
     web::HttpResponse::Ok().body("OK")
 }
 
-#[get("/item/{id}")]
 async fn get_item(pool: web::Data<DbPool>, id: web::Path<i64>) -> Result<HttpResponse, Error> {
     let id = id.into_inner();
     let conn = pool.get().expect("couldn't get db connection from pool");
@@ -29,7 +27,7 @@ async fn get_item(pool: web::Data<DbPool>, id: web::Path<i64>) -> Result<HttpRes
     Ok(HttpResponse::Ok().json(item))
 }
 
-#[get("/items")]
+
 async fn get_items(pool: web::Data<DbPool>) -> Result<HttpResponse, Error> {
     let conn = pool.get().expect("couldn't get db connection from pool");
     let items = web::block(move || actions::find_items(&conn))
@@ -61,11 +59,22 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(Logger::default())
             .data(pool.clone())
-            .service(index)
-            .service(get_item)
-            .service(get_items)
+            .configure(routes)
     })
     .bind(address)?
     .run()
     .await
+}
+
+fn routes(cfg: &mut web::ServiceConfig) {
+    cfg
+        .service(
+            web::scope("/api/v1")
+                .route("/items", web::get().to(get_items))
+                .route("/item/{id}", web::get().to(get_item)),
+            )
+        .service(
+            web::scope("/")
+                .route("", web::get().to(index)),
+        );
 }
