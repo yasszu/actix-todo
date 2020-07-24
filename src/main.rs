@@ -9,6 +9,8 @@ mod config;
 mod models;
 mod actions;
 
+use crate::models::*;
+
 type DbPool = r2d2::Pool<ConnectionManager<MysqlConnection>>;
 
 async fn index() -> impl Responder {
@@ -39,6 +41,20 @@ async fn get_items(pool: web::Data<DbPool>) -> Result<HttpResponse, Error> {
     Ok(HttpResponse::Ok().json(items))
 }
 
+async fn get_items_of_list(pool: web::Data<DbPool>, list_id: web::Path<i64>) -> Result<HttpResponse, Error> {
+    let conn = pool.get().expect("couldn't get db connection from pool");
+    let items: Vec<(List, Item)> = web::block(move || actions::find_items_of_list(list_id.into_inner(), &conn))
+        .await
+        .map_err(|e| {
+            eprintln!("{}", e);
+            HttpResponse::InternalServerError().finish()
+        })?;
+    let result: Vec<Item> = items
+        .into_iter()
+        .map(|(_, item)| item)
+        .collect::<Vec<Item>>();
+    Ok(HttpResponse::Ok().json(result))
+}
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
@@ -71,7 +87,8 @@ fn routes(cfg: &mut web::ServiceConfig) {
         .service(
             web::scope("/api/v1")
                 .route("/items", web::get().to(get_items))
-                .route("/item/{id}", web::get().to(get_item)),
+                .route("/item/{id}", web::get().to(get_item))
+                .route("/list/{id}", web::get().to(get_items_of_list)),
             )
         .service(
             web::scope("/")
