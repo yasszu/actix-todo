@@ -4,6 +4,7 @@ use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 use actix_web::middleware::Logger;
 use env_logger::Env;
+use serde::Deserialize;
 
 mod config;
 mod models;
@@ -29,6 +30,21 @@ async fn get_item(pool: web::Data<DbPool>, id: web::Path<i64>) -> Result<HttpRes
     Ok(HttpResponse::Ok().json(item))
 }
 
+#[derive(Deserialize)]
+struct FormItem {
+    title: String
+}
+
+async fn post_item(pool: web::Data<DbPool>, list_id: web::Path<i64>, form: web::Form<FormItem>) -> Result<HttpResponse, Error> {
+    let conn = pool.get().expect("couldn't get db connection from pool");
+    let result = web::block(move || actions::create_item(list_id.into_inner(), &form.title, &conn))
+        .await
+        .map_err(|e| {
+            eprintln!("{}", e);
+            HttpResponse::InternalServerError().finish()
+        })?;
+    Ok(HttpResponse::Ok().json(result))
+}
 
 async fn get_items(pool: web::Data<DbPool>) -> Result<HttpResponse, Error> {
     let conn = pool.get().expect("couldn't get db connection from pool");
@@ -88,7 +104,8 @@ fn routes(cfg: &mut web::ServiceConfig) {
             web::scope("/api/v1")
                 .route("/items", web::get().to(get_items))
                 .route("/item/{id}", web::get().to(get_item))
-                .route("/list/{id}", web::get().to(get_items_of_list)),
+                .route("/list/{id}", web::get().to(get_items_of_list))
+                .route("/list/{id}", web::post().to(post_item)),
             )
         .service(
             web::scope("/")

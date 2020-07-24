@@ -30,3 +30,10 @@ pub fn find_items(conn: &MysqlConnection) -> Result<Vec<Item>, Error> {
         .expect("Error loading posts");
     Ok(item)
 }
+
+pub fn create_item(_list_id: i64, _title: &String, conn: &MysqlConnection) -> Result<usize, Error> {
+    use actix_todo::schema::items::dsl::*;
+    let values = vec![(list_id.eq(_list_id), title.eq(_title))];
+    let result = diesel::insert_into(items).values(&values).execute(conn);
+    result
+}

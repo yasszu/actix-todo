@@ -1,5 +1,5 @@
 use serde::Serialize;
-use diesel::Queryable;
+use diesel::*;
 
 #[derive(Serialize, Queryable)]
 pub struct List {
