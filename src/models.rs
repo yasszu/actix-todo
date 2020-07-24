@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use diesel::*;
 
 #[derive(Serialize, Queryable)]
@@ -13,4 +13,9 @@ pub struct Item {
     pub title: String,
     pub checked: i8,
     pub list_id: i64,
+}
+
+#[derive(Deserialize)]
+pub struct FormItem {
+    pub title: String
 }
